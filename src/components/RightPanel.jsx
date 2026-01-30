@@ -35,7 +35,7 @@ function RightPanel({ incidents, violations }) {
       <Card className="border-0 shadow-sm flex-grow-1" style={{minHeight: 0}}> 
         {/* minHeight: 0 là trick quan trọng để flex-grow hoạt động đúng với overflow */}
         <Card.Header className="bg-white fw-bold border-bottom">
-          🚗 Vi phạm gần đây
+           Vi phạm gần đây
         </Card.Header>
         
         <div className="p-2" style={{ overflowY: 'auto', flex: 1 }}>
