@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-
+import fireIcon from '../assets/tl.webp';
+import carIcon from '../assets/red-vector-car-icon-emoji-600nw-2624240417.webp';
 const ViolationPage = () => {
   // 1. DỮ LIỆU MẪU (Mock Data)
   const initialData = [
@@ -115,7 +116,8 @@ const ViolationPage = () => {
                   <div className="card-body">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <h4 className="card-title fw-bold m-0">
-                        {item.subType === 'Hỏa hoạn' ? '🔥' : '🌊'} {item.subType}
+                        {item.subType === 'Hỏa hoạn' ? 
+                        <img src={fireIcon} alt="Hình có cháy" style={{width:'20px', height:'20px'}} /> : '🌊'} {item.subType}
                       </h4>
                       <span className="badge bg-white text-dark fw-bold border">
                         {item.status}
@@ -145,7 +147,7 @@ const ViolationPage = () => {
       {/* --- PHẦN 2: DANH SÁCH VI PHẠM (Giữ nguyên) --- */}
       <div className="card shadow-sm border-0">
         <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-          <h5 className="mb-0 fw-bold">🚗 Nhật ký Vi phạm Giao thông</h5>
+          <h5 className="mb-0 fw-bold"><img src={carIcon} alt="Hình xe" style={{width:'30px', height:'30px'}} /> Nhật ký Vi phạm Giao thông</h5>
           <span className="badge bg-secondary">{trafficViolations.length} vi phạm</span>
         </div>
         
