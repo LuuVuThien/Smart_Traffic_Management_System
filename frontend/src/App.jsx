@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Import các trang
@@ -15,7 +15,6 @@ import ReportPage from './components/ReportPage';
 import SettingsPage from './components/SettingsPage';
 
 function App() {
-  // DATABASE GIẢ LẬP
   const [dbUsers, setDbUsers] = useState([
     { id: 1, username: 'admin', password: '123', name: 'Lưu Vũ Thiện', role: 'Admin', email: 'admin@stms.com', status: 'Online', avatar: 'https://via.placeholder.com/150' },
     { id: 2, username: 'police1', password: '123', name: 'Trần Văn Cảnh', role: 'Police', email: 'canh_sat@stms.com', status: 'Online', avatar: 'https://via.placeholder.com/150' },
@@ -24,36 +23,25 @@ function App() {
 
   const [currentUser, setCurrentUser] = useState(null);
 
-  // Đăng nhập
-  const handleLogin = (username, password) => {
-    const user = dbUsers.find(u => u.username === username && u.password === password);
-    if (user) {
-      setCurrentUser(user);
-      return true;
-    }
-    return false;
+  const handleLogin = (apiResponseData) => {
+    const loggedInUser = {
+      id: apiResponseData.user.id,
+      username: apiResponseData.user.username,
+      name: apiResponseData.user.name, 
+      role: apiResponseData.user.role, 
+      avatar: 'https://via.placeholder.com/150'
+    };
+    setCurrentUser(loggedInUser);
   };
 
-  // Đăng ký
-  const handleRegister = (newUser) => {
-    const isExist = dbUsers.some(u => u.username === newUser.username);
-    if (isExist) return false;
-    const userToAdd = { ...newUser, id: dbUsers.length + 1, role: 'User', status: 'Online', avatar: 'https://via.placeholder.com/150' };
-    setDbUsers([...dbUsers, userToAdd]);
-    setCurrentUser(userToAdd);
-    return true;
-  };
+  const handleRegister = () => { return true; };
 
-  // Thêm nhân sự (Admin)
   const handleAddPersonnel = (newPersonnel) => {
     const userToAdd = { ...newPersonnel, id: dbUsers.length + 1, status: 'Offline', avatar: 'https://via.placeholder.com/150' };
     setDbUsers([...dbUsers, userToAdd]);
   };
 
-  // --> HÀM MỚI: ĐĂNG XUẤT <--
-  const handleLogout = () => {
-    setCurrentUser(null); // Xóa người dùng hiện tại -> Tự động quay về trang Login
-  };
+  const handleLogout = () => { setCurrentUser(null); };
 
   if (!currentUser) {
     return <LoginPage onLogin={handleLogin} onRegister={handleRegister} />;
@@ -79,19 +67,36 @@ function App() {
                         <div style={{ width: '320px', background: 'white' }}><RightPanel /></div>
                     </div>
                 } />
-                <Route path="/camera" element={<CameraPage />} />
-                <Route path="/violations" element={<ViolationPage />} />
-                <Route path="/reports" element={<ReportPage />} />
-                
-                {/* TRUYỀN HÀM LOGOUT XUỐNG SETTINGS */}
+
+                {/* CÁC TRANG NGHIỆP VỤ: Chỉ dành cho Admin và Police */}
+                {currentUser.role !== 'User' && (
+                    <>
+                        <Route path="/camera" element={<CameraPage />} />
+                        <Route path="/violations" element={<ViolationPage />} />
+                        <Route path="/reports" element={<ReportPage />} />
+                    </>
+                )}
+
+                {/* TRANG SETTINGS: ĐƯA RA NGOÀI ĐỂ USER CŨNG VÀO ĐƯỢC */}
                 <Route path="/settings" element={
                     <SettingsPage 
                         currentUser={currentUser} 
                         allUsers={dbUsers} 
                         onAddPersonnel={handleAddPersonnel}
-                        onLogout={handleLogout} // <--- Truyền hàm này
+                        onLogout={handleLogout} 
                     />
                 } />
+
+                {/* Chặn truy cập trái phép bằng cách đẩy về trang chủ */}
+                {currentUser.role === 'User' && (
+                    <>
+                        <Route path="/camera" element={<Navigate to="/" />} />
+                        <Route path="/violations" element={<Navigate to="/" />} />
+                        <Route path="/reports" element={<Navigate to="/" />} />
+                    </>
+                )}
+                
+                <Route path="*" element={<Navigate to="/" />} />
             </Routes>
         </div>
       </div>

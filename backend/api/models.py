@@ -13,7 +13,6 @@ class Users(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        managed = False
         db_table = 'users'
 
 class Areas(models.Model):
@@ -24,7 +23,6 @@ class Areas(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        managed = False
         db_table = 'areas'
 
 class Cameras(models.Model):
@@ -37,7 +35,6 @@ class Cameras(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        managed = False
         db_table = 'cameras'
 
 class TrafficData(models.Model):
@@ -52,7 +49,6 @@ class TrafficData(models.Model):
     recorded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        managed = False
         db_table = 'traffic_data'
 
 class Violations(models.Model):
@@ -64,7 +60,6 @@ class Violations(models.Model):
     occurred_at = models.DateTimeField()
 
     class Meta:
-        managed = False
         db_table = 'violations'
 
 class Incidents(models.Model):
@@ -77,7 +72,6 @@ class Incidents(models.Model):
     resolved_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'incidents'
 
 class Notifications(models.Model):
@@ -90,5 +84,4 @@ class Notifications(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        managed = False
         db_table = 'notifications'

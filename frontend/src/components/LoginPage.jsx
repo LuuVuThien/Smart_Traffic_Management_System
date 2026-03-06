@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
+import axios from 'axios'; // Import thêm axios
 import { Card, Form, Button, Alert } from 'react-bootstrap';
-import { FaUserPlus, FaSignInAlt, FaUser, FaStar, FaPhoneAlt, FaLock } from 'react-icons/fa';
+import { FaUserPlus, FaSignInAlt, FaUser, FaPhoneAlt, FaLock } from 'react-icons/fa';
 
-// --- QUAN TRỌNG: Import logo bạn vừa lưu ---
-// Nếu bạn để ảnh ở chỗ khác, hãy sửa đường dẫn này nhé
 import logoStms from '../assets/logo-stms.png'; 
 
 function LoginPage({ onLogin, onRegister }) {
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // Thêm hiệu ứng loading
   
   const [formData, setFormData] = useState({
       username: '', password: '', name: '', email: ''
@@ -16,15 +16,42 @@ function LoginPage({ onLogin, onRegister }) {
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
+
     if (isRegistering) {
-        if (!formData.username || !formData.password || !formData.name) return setError("Vui lòng điền đủ thông tin!");
-        if (!onRegister(formData)) setError("Tên đăng nhập đã tồn tại!");
+        if (!formData.username || !formData.password || !formData.name) {
+            setLoading(false);
+            return setError("Vui lòng điền đủ thông tin!");
+        }
+        try {
+            // Gọi API Đăng ký
+            await axios.post('http://127.0.0.1:8000/api/register/', formData);
+            alert("Đăng ký thành công! Vui lòng đăng nhập.");
+            setIsRegistering(false); // Chuyển về form đăng nhập
+        } catch (err) {
+            setError("Tên đăng nhập đã tồn tại hoặc có lỗi xảy ra!");
+        }
     } else {
-        if (!onLogin(formData.username, formData.password)) setError("Sai tên đăng nhập hoặc mật khẩu!");
+        if (!formData.username || !formData.password) {
+            setLoading(false);
+            return setError("Vui lòng nhập tài khoản và mật khẩu!");
+        }
+        try {
+            // Gọi API Đăng nhập
+            const response = await axios.post('http://127.0.0.1:8000/api/login/', {
+                username: formData.username,
+                password: formData.password
+            });
+            // Nếu thành công, báo cho file App.jsx biết để chuyển trang
+            onLogin(response.data); 
+        } catch (err) {
+            setError("Sai tên đăng nhập hoặc mật khẩu!");
+        }
     }
+    setLoading(false);
   };
 
   return (
@@ -32,7 +59,7 @@ function LoginPage({ onLogin, onRegister }) {
         minHeight: '100vh', 
         width: '100vw',
         backgroundColor: 'rgb(95, 0, 4)',
-        backgroundImage: `url("https://vneid.gov.vn/_next/static/media/background-login.98683067.png?fbclid=IwY2xjawPu7ZlleHRuA2FlbQIxMABicmlkETE5djM2WjBsSzRycFp6YUU4c3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHk0BYXXbhWzWIgWCGlShDSsVBqPyV4wNI4wHwogwZ3C-a3D5M1kLyiiylYC3_aem_LHSww51DKHwgFM32N5pD4g")`,
+        backgroundImage: `url("https://vneid.gov.vn/_next/static/media/background-login.98683067.png")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center 30%',
         backgroundRepeat: 'no-repeat',
@@ -46,23 +73,14 @@ function LoginPage({ onLogin, onRegister }) {
       
       {/* HEADER LOGO & TITLE */}
       <div className="text-center text-white mb-4 animate__animated animate__fadeInDown" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-         
-         {/* --- LOGO MỚI (Hình ngôi sao + bóng đèn) --- */}
          <img 
             src={logoStms} 
             alt="STMS Logo" 
             className="mb-3"
-            style={{ 
-                width: '180px', // Điều chỉnh to nhỏ tùy ý bạn
-                height: 'auto', 
-                filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.5))', // Đổ bóng cho logo nổi bật
-                transition: 'transform 0.3s ease'
-            }}
+            style={{ width: '180px', height: 'auto', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.5))', transition: 'transform 0.3s ease' }}
             onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
             onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
          />
-         {/* ------------------------------------------- */}
-
          <h2 className="fw-bold text-uppercase mt-2" style={{ letterSpacing: '1px', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
             HỆ THỐNG CƠ SỞ DỮ LIỆU GIAO THÔNG
          </h2>
@@ -71,18 +89,9 @@ function LoginPage({ onLogin, onRegister }) {
       </div>
 
       {/* CARD ĐĂNG NHẬP */}
-      <Card className="shadow-lg border-0 animate__animated animate__fadeInUp" 
-            style={{ 
-                width: '100%', 
-                maxWidth: '460px',
-                borderRadius: '12px',
-                overflow: 'hidden'
-            }}>
-        
+      <Card className="shadow-lg border-0 animate__animated animate__fadeInUp" style={{ width: '100%', maxWidth: '460px', borderRadius: '12px', overflow: 'hidden' }}>
         <div className="pt-4 pb-3 text-center text-white" style={{ backgroundColor: 'rgb(95, 0, 4)' }}>
-            <h5 className="fw-bold m-0 text-uppercase">
-                {isRegistering ? 'Đăng Ký Tài Khoản' : 'Đăng Nhập Hệ Thống'}
-            </h5>
+            <h5 className="fw-bold m-0 text-uppercase">{isRegistering ? 'Đăng Ký Tài Khoản' : 'Đăng Nhập Hệ Thống'}</h5>
             <small style={{ fontSize: '0.85rem', opacity: 0.8 }}>Xác thực qua tài khoản định danh điện tử</small>
         </div>
 
@@ -114,9 +123,10 @@ function LoginPage({ onLogin, onRegister }) {
                         <Form.Control size="lg" type="password" name="password" placeholder="Mật khẩu" className="bg-light border-0 fs-6" onChange={handleChange} />
                     </div>
                 </Form.Group>
-                <Button type="submit" size="lg" className="w-100 fw-bold shadow-sm mb-3 text-uppercase text-white" 
+
+                <Button type="submit" size="lg" disabled={loading} className="w-100 fw-bold shadow-sm mb-3 text-uppercase text-white" 
                         style={{ backgroundColor: 'rgb(95, 0, 4)', border: 'none', padding: '12px', fontSize: '1rem' }}>
-                    {isRegistering ? <><FaUserPlus className="me-2"/>Đăng ký ngay</> : <><FaSignInAlt className="me-2"/>Đăng nhập</>}
+                    {loading ? 'Đang xử lý...' : (isRegistering ? <><FaUserPlus className="me-2"/>Đăng ký ngay</> : <><FaSignInAlt className="me-2"/>Đăng nhập</>)}
                 </Button>
 
                 <div className="d-flex justify-content-between mt-4 small">
