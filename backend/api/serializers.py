@@ -1,7 +1,14 @@
 # backend/api/serializers.py
 from rest_framework import serializers
-from .models import Users, Cameras, Violations, TrafficData, Incidents, Notifications
+from .models import Users, Areas, Cameras, Violations, TrafficData, Incidents, Notifications
 
+# --- Thêm Serializer cho Areas (Quận) ---
+class AreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Areas
+        fields = '__all__'
+
+# --- Các Serializer cũ của bạn giữ nguyên ---
 class CamerasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cameras
