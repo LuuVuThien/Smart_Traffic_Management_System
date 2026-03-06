@@ -8,6 +8,9 @@ const API_BASE_URL = 'http://127.0.0.1:8000/api';
 function ReportPage() {
   const [loading, setLoading] = useState(true);
   
+  // Thêm state để quản lý việc mở rộng/thu gọn danh sách
+  const [showAll, setShowAll] = useState(false);
+  
   // State lưu trữ dữ liệu thống kê
   const [stats, setStats] = useState({
     totalAreas: 0,
@@ -177,8 +180,8 @@ function ReportPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {camerasData.length > 0 ? camerasData.slice(0, 5).map((cam) => {
-                    // Tìm tên quận tương ứng với ID của Camera
+                  {/* SỬA LỖI Ở ĐÂY: Dùng showAll để quyết định cắt 5 dòng hay lấy hết */}
+                  {camerasData.length > 0 ? camerasData.slice(0, showAll ? camerasData.length : 5).map((cam) => {
                     const areaName = areasData.find(a => a.id === cam.area)?.area_name || 'Chưa rõ';
                     return (
                       <tr key={cam.id}>
@@ -186,6 +189,7 @@ function ReportPage() {
                         <td>{cam.location_name} (Q. {areaName})</td>
                         <td className="font-monospace">{cam.ip_address}</td>
                         <td className="text-end px-4">
+                          {/* Đã giữ nguyên logic màu: ACTIVE màu xanh, còn lại (bao gồm MAINTENANCE) màu đỏ */}
                           <Badge bg={cam.status === 'ACTIVE' ? 'success' : 'danger'}>
                             {cam.status || 'OFFLINE'}
                           </Badge>
@@ -200,9 +204,16 @@ function ReportPage() {
                 </tbody>
               </Table>
             </Card.Body>
+            {/* SỬA LỖI Ở ĐÂY: Thêm sự kiện onClick để thay đổi biến showAll */}
             {camerasData.length > 5 && (
-              <Card.Footer className="bg-white text-center">
-                <small className="text-primary" style={{cursor: 'pointer'}}>Xem toàn bộ danh sách...</small>
+              <Card.Footer 
+                className="bg-white text-center py-3" 
+                style={{cursor: 'pointer'}}
+                onClick={() => setShowAll(!showAll)}
+              >
+                <small className="text-primary fw-bold">
+                  {showAll ? "Thu gọn danh sách" : "Xem toàn bộ danh sách..."}
+                </small>
               </Card.Footer>
             )}
           </Card>
