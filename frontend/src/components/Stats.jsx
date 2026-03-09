@@ -35,8 +35,13 @@ function Stats() {
 
         // 4. Tính tỷ lệ Camera hoạt động
         const totalCameras = camerasRes.data.length;
-        // Giả sử cột trạng thái camera là 'status' hoặc 'is_active'
-        const activeCameras = camerasRes.data.filter(c => c.status === 'Online' || c.status === 'Active' || c.is_active).length;
+        
+        const activeCameras = camerasRes.data.filter(c => {
+          if (!c.status) return false;
+          // Chuyển status về chữ in hoa hết rồi so sánh với 'ACTIVE'
+          return String(c.status).toUpperCase() === 'ACTIVE';
+        }).length;
+
         const cameraString = totalCameras > 0 ? `${activeCameras}/${totalCameras}` : "0/0";
 
         setStats({
